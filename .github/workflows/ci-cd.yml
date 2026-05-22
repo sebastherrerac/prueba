@@ -19,11 +19,17 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
+      - name: Resolve Maven dependencies
+        run: ./mvnw dependency:go-offline -B
+
       - name: Install Snyk CLI
         run: npm install -g snyk
 
       - name: Run Snyk to check for vulnerabilities
-        run: snyk test --severity-threshold=high
+        run: snyk test --file=pom.xml --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
