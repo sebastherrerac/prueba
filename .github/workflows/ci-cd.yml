@@ -88,3 +88,31 @@ jobs:
           cache-binary: # optional, default is true
           # Cleanup temp files and remove builder at the end of a job
           cleanup: # optional, default is true
+
+  test-entorno-simulado:
+    name: Despliegue en Entorno Simulado
+    runs-on: ubuntu-latest
+    needs: build-and-push # Esto es vital: le dice a GitHub que espere a que la imagen se construya primero
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Levantar entorno con Docker Compose
+        run: |
+          docker-compose up -d
+          # Le damos unos segundos a la base de datos y la API para que arranquen bien
+          sleep 15 
+
+      - name: Verificar que los contenedores están corriendo
+        run: docker ps
+
+      - name: Probar conexión a la API (Ejemplo)
+        # Aquí haces una petición real a tu API para confirmar que está viva
+        # Cambia "/api/health" por alguna ruta pública que tenga tu backend
+        run: |
+          curl -v http://localhost:8080/api/health 
+
+      - name: Apagar y limpiar el entorno
+        if: always() # Asegura que se apague incluso si el paso anterior falla
+        run: docker-compose down
