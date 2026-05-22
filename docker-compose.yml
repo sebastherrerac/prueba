@@ -1,0 +1,55 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: icomers-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-icomers_db}
+      MYSQL_USER: ${MYSQL_USER:-icomers}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-icomers_pass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - icomers-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: icomers-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE:-icomers_db}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-icomers}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-icomers_pass}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks:
+      - icomers-net
+
+volumes:
+  db-data:
+
+networks:
+  icomers-net:
+    driver: bridge

@@ -44,6 +44,10 @@ public class Figuras {
     @JoinColumn(name = "id_categoria")
     private Categoria categoria;
 
+    @ManyToOne
+    @JoinColumn(name = "id_marca")
+    private Marca marca;
+
     @Size(max = 500)
     private String descripcion;
 
