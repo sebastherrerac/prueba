@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\seba2\\\\OneDrive\\\\Escritorio\\\\fullstrack\\\\icomers2.0-main\" -Force)"
-    ]
-  }
-}

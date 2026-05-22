@@ -88,7 +88,3 @@ jobs:
     cache-binary: # optional, default is true
     # Cleanup temp files and remove builder at the end of a job
     cleanup: # optional, default is true
-          
-
-    name: Set up Docker Buildx
-    uses: docker/setup-buildx-action@v4
